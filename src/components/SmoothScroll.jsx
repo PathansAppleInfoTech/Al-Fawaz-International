@@ -36,12 +36,14 @@ export default function SmoothScroll() {
       (entries) => entries.forEach((e) => {
         if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target) }
       }),
-      { threshold: 0.12, rootMargin: '0px 0px -6% 0px' }
+      { threshold: 0.05, rootMargin: '0px 0px -20px 0px' }
     )
-    const t = setTimeout(() => {
+    const scan = () => {
       document.querySelectorAll('[data-reveal]:not(.is-in), [data-group]:not(.is-in)').forEach((el) => io.observe(el))
-    }, 80)
-    return () => { clearTimeout(t); io.disconnect() }
+    }
+    const t1 = setTimeout(scan, 60)
+    const t2 = setTimeout(scan, 300)
+    return () => { clearTimeout(t1); clearTimeout(t2); io.disconnect() }
   }, [pathname, hash])
 
   return null
