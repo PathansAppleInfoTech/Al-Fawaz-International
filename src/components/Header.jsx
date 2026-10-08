@@ -199,7 +199,7 @@ export default function Header() {
               duration-500
               ${solidHeader
                 ? 'bg-navy'
-                : 'bg-navy'
+                : 'bg-white'
               }
 
               ${open
@@ -217,7 +217,7 @@ export default function Header() {
               duration-500
               ${solidHeader
                 ? 'bg-maroon'
-                : 'bg-maroon'
+                : 'bg-white'
               }
 
               ${open

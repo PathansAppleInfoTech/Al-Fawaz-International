@@ -1259,7 +1259,7 @@ export default function Home() {
               {/* Small statement */}
               <Reveal delay={300}>
                 <div className="mt-9 flex items-center gap-4">
-                  <span className="h-2 w-2 rounded-full bg-[#D2A844]" />
+                  <span className="h-2 w-2 rounded-full bg-maroon" />
 
                   <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#0B2F66]/40">
                     One network · many needs
@@ -1313,7 +1313,7 @@ export default function Home() {
                     Serving customers across Qatar
                   </p>
 
-                  <span className="h-px w-16 bg-[#D2A844] md:w-24" />
+                  <span className="h-px w-16 bg-maroon md:w-24" />
                 </div>
               </Reveal>
             </div>
