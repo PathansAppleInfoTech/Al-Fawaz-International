@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Helmet } from 'react-helmet'
 import { Link } from 'react-router-dom'
 import { company, waLink } from '../../data/company.js'
+import Reveal from '../../components/Reveal.jsx'
 
 /* =========================================================
    ICONS
@@ -67,79 +68,6 @@ const assetUrl = (source, siteUrl) => {
     }`
 }
 
-/* =========================================================
-   SCROLL REVEAL
-   Tailwind-only animation classes.
-========================================================= */
-
-const Reveal = ({
-  children,
-  delay = 0,
-  variant = 'up',
-  className = '',
-}) => {
-  const [visible, setVisible] = useState(false)
-  const ref = useRef(null)
-
-  useEffect(() => {
-    const element = ref.current
-
-    if (!element) return
-
-    const reducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)'
-    ).matches
-
-    if (reducedMotion) {
-      setVisible(true)
-      return
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true)
-          observer.unobserve(element)
-        }
-      },
-      {
-        threshold: 0.12,
-        rootMargin: '0px 0px -40px 0px',
-      }
-    )
-
-    observer.observe(element)
-
-    return () => observer.disconnect()
-  }, [])
-
-  const hiddenClasses = {
-    up: 'opacity-0 translate-y-8 blur-[2px]',
-    left: 'opacity-0 -translate-x-8 blur-[2px]',
-    right: 'opacity-0 translate-x-8 blur-[2px]',
-    scale: 'opacity-0 scale-[0.96] blur-[2px]',
-    fade: 'opacity-0',
-  }
-
-  const visibleClasses = {
-    up: 'opacity-100 translate-y-0 blur-0',
-    left: 'opacity-100 translate-x-0 blur-0',
-    right: 'opacity-100 translate-x-0 blur-0',
-    scale: 'opacity-100 scale-100 blur-0',
-    fade: 'opacity-100',
-  }
-
-  return (
-    <div
-      ref={ref}
-      style={{ transitionDelay: `${delay}ms` }}
-      className={`transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${visible ? visibleClasses[variant] : hiddenClasses[variant]
-        } ${className}`}
-    >
-      {children}
-    </div>
-  )
-}
 
 /* =========================================================
    HOME
@@ -337,7 +265,7 @@ export default function Home() {
             {/* Eyebrow */}
             <Reveal variant="fade">
               <div className="flex items-center gap-2.5 sm:gap-3">
-                <span className="h-px w-7 bg-[#D2A844] sm:w-10" />
+                <span className="h-px w-7 bg-[#ffffff] sm:w-10" />
 
                 <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-white/75 sm:text-[9px] sm:tracking-[0.17em] md:text-xs md:tracking-[0.18em]">
                   Food & Beverage Distribution · Doha, Qatar
@@ -1067,9 +995,9 @@ export default function Home() {
               {/* Eyebrow */}
               <Reveal>
                 <div className="flex items-center gap-3">
-                  <span className="h-px w-10 bg-[#D2A844]" />
+                  <span className="h-px w-10 bg-[#ffffff]" />
 
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D2A844] md:text-xs">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#ffffff] md:text-xs">
                     Home delivery
                   </p>
                 </div>
@@ -1132,7 +1060,6 @@ export default function Home() {
               transition-all
               duration-300
               hover:-translate-y-1
-              hover:bg-[#D2A844]
               hover:shadow-[0_12px_30px_rgba(0,0,0,0.18)]
             "
                 >
@@ -1147,7 +1074,7 @@ export default function Home() {
               {/* Bottom statement */}
               <Reveal delay={480}>
                 <div className="mt-10 flex items-center gap-4 border-t border-white/10 pt-5">
-                  <span className="h-2 w-2 rounded-full bg-[#D2A844]" />
+                  <span className="h-2 w-2 rounded-full bg-[#ffffff]" />
 
                   <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/40">
                     From our network to your doorstep
@@ -1194,7 +1121,7 @@ export default function Home() {
                   {/* Small image label */}
                   <div className="absolute bottom-6 left-6">
                     <div className="flex items-center gap-3">
-                      <span className="h-2 w-2 rounded-full bg-[#D2A844]" />
+                      <span className="h-2 w-2 rounded-full bg-[#ffffff]" />
 
                       <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/85">
                         Delivered with care
@@ -1204,7 +1131,7 @@ export default function Home() {
                 </div>
 
                 {/* Floating number */}
-                <div className="absolute -bottom-5 right-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#D2A844] text-xl font-extrabold text-[#0B2F66] shadow-xl md:-bottom-7 md:right-8 md:h-20 md:w-20">
+                <div className="absolute -bottom-5 right-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#ffffff] text-xl font-extrabold text-[#0B2F66] shadow-xl md:-bottom-7 md:right-8 md:h-20 md:w-20">
                   24/7
                 </div>
               </div>
@@ -1394,7 +1321,7 @@ export default function Home() {
         <div className="relative mx-auto max-w-[1400px] px-5 py-28 md:px-10 md:py-40">
           <div className="max-w-5xl">
             <Reveal>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D2A844]">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#ffffff]">
                 Ready when you are
               </p>
             </Reveal>
@@ -1415,7 +1342,7 @@ export default function Home() {
               <div className="mt-10 flex flex-wrap items-center gap-5">
                 <a
                   href={`tel:${company.phone}`}
-                  className="text-2xl font-bold text-white transition-colors duration-300 hover:text-[#D2A844] md:text-4xl"
+                  className="text-2xl font-bold text-white transition-colors duration-300 hover:text-[#ffffff] md:text-4xl"
                 >
                   {company.phoneIntl}
                 </a>
@@ -1424,7 +1351,7 @@ export default function Home() {
                   href={waLink()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-3 rounded-full bg-[#8B1E46] px-7 py-4 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-1 hover:bg-[#D2A844]"
+                  className="group inline-flex items-center gap-3 rounded-full bg-[#8B1E46] px-7 py-4 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-1 "
                 >
                   Message us on WhatsApp
 

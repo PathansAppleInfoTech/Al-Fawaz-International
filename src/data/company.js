@@ -77,12 +77,12 @@ export const company = {
     city: u('photo-1559564484-e48b3e040ff4', 1800),
   },
   categories: [
-    { name: 'Bottled Water', blurb: 'Small bottles, 1.5 L packs and large dispenser jugs for homes, offices and shops.', items: ['Still drinking water', 'Mineral water', 'Sparkling water', '5 and 19 litre jugs', 'Multi-pack cartons'], img: u('photo-1548839140-29a749e1cf4d', 1200) },
-    { name: 'Soft Drinks and Colas', blurb: 'The fast-moving fizzy brands every counter, canteen and family fridge needs.', items: ['Cola and diet cola', 'Lemon-lime and orange sodas', 'Cans, PET bottles and multipacks', 'Flavoured sodas'], img: u('photo-1622483767028-3f66f32aef97', 1200) },
-    { name: 'Juices and Energy Drinks', blurb: 'Ready-to-drink juices, nectars and energy drinks for every shelf and cooler.', items: ['Fruit juices and nectars', 'Energy drinks', 'Sports and isotonic drinks', 'Iced tea and malt drinks'], img: u('photo-1600271886742-f049cd451bba', 1200) },
-    { name: 'Dairy and Chilled', blurb: 'Everyday dairy delivered with the freshness customers expect.', items: ['Fresh and long-life milk', 'Laban and yoghurt', 'Cheese and cream', 'Flavoured milk'], img: u('photo-1550583724-b2692b85b150', 1200) },
-    { name: 'Rice, Flour and Staples', blurb: 'The pantry basics that homes and kitchens order again and again.', items: ['Rice and pulses', 'Flour, sugar and salt', 'Pasta and noodles', 'Cooking oil and ghee'], img: u('photo-1586201375761-83865001e31c', 1200) },
-    { name: 'Packed and Canned Foods', blurb: 'Long-shelf-life foods for stocking supermarkets, groceries and catering kitchens.', items: ['Canned vegetables and beans', 'Tuna and canned fish', 'Tomato paste and sauces', 'Jams, spreads and condiments'], img: u('photo-1604719312566-8912e9227c6a', 1200) },
+    { name: 'Bottled Water', blurb: 'Small bottles, 1.5 L packs and large dispenser jugs for homes, offices and shops.', items: ['Still drinking water', 'Mineral water', 'Sparkling water', '5 and 19 litre jugs', 'Multi-pack cartons'], img: '/assets/products/bottled-water.png' },
+    { name: 'Soft Drinks and Colas', blurb: 'The fast-moving fizzy brands every counter, canteen and family fridge needs.', items: ['Cola and diet cola', 'Lemon-lime and orange sodas', 'Cans, PET bottles and multipacks', 'Flavoured sodas'], img: '/assets/products/coca-cola.png'},
+    { name: 'Juices and Energy Drinks', blurb: 'Ready-to-drink juices, nectars and energy drinks for every shelf and cooler.', items: ['Fruit juices and nectars', 'Energy drinks', 'Sports and isotonic drinks', 'Iced tea and malt drinks'], img: '/assets/products/energy-drinks.png' },
+    { name: 'Dairy and Chilled', blurb: 'Everyday dairy delivered with the freshness customers expect.', items: ['Fresh and long-life milk', 'Laban and yoghurt', 'Cheese and cream', 'Flavoured milk'], img: '/assets/products/dairy.png' },
+    { name: 'Rice, Flour and Staples', blurb: 'The pantry basics that homes and kitchens order again and again.', items: ['Rice and pulses', 'Flour, sugar and salt', 'Pasta and noodles', 'Cooking oil and ghee'], img: '/assets/products/rice.png' },
+    { name: 'Packed and Canned Foods', blurb: 'Long-shelf-life foods for stocking supermarkets, groceries and catering kitchens.', items: ['Canned vegetables and beans', 'Tuna and canned fish', 'Tomato paste and sauces', 'Jams, spreads and condiments'], img: '/assets/products/packed-foods.png' },
   ],
   alsoSupplied: ['Tea and coffee', 'Biscuits and snacks', 'Chocolates and confectionery', 'Breakfast cereals', 'Spices and seasonings', 'Frozen foods', 'Dates and dry fruits', 'Disposable cups and catering supplies'],
 }

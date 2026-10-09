@@ -131,7 +131,7 @@ export default function Header() {
 
                   ${solidHeader
                   ? 'text-navy hover:text-maroon'
-                  : 'text-white drop-shadow-[0_1px_8px_rgba(0,0,0,.25)] hover:text-[#D2A844]'
+                  : 'text-white drop-shadow-[0_1px_8px_rgba(0,0,0,.25)] hover:text-maroon'
                 }
 
                   ${isActive

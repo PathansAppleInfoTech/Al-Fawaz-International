@@ -60,9 +60,9 @@ const WhatsAppIcon = () => (
 function Eyebrow({ children, light = false }) {
   return (
     <div className="flex items-center gap-3">
-      <span className={`h-px w-10 ${light ? 'bg-[#D2A844]' : 'bg-[#8B1E46]'}`} />
+      <span className={`h-px w-10 ${light ? 'bg-[#ffffff]' : 'bg-[#8B1E46]'}`} />
       <p
-        className={`text-[10px] font-bold uppercase tracking-[0.22em] md:text-xs ${light ? 'text-[#D2A844]' : 'text-[#8B1E46]'
+        className={`text-[10px] font-bold uppercase tracking-[0.22em] md:text-xs ${light ? 'text-[#ffffff]' : 'text-[#8B1E46]'
           }`}
       >
         {children}
@@ -145,7 +145,7 @@ export default function Services() {
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(4,18,40,0.94)_0%,rgba(4,18,40,0.76)_45%,rgba(4,18,40,0.42)_100%)]" />
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(7,27,60,0.1)_0%,rgba(7,27,60,0.72)_100%)]" />
         <div className="pointer-events-none absolute -right-40 -top-40 h-[32rem] w-[32rem] rounded-full border border-white/10" />
-        <div className="pointer-events-none absolute -right-20 -top-20 h-[24rem] w-[24rem] rounded-full border border-[#D2A844]/20" />
+        <div className="pointer-events-none absolute -right-20 -top-20 h-[24rem] w-[24rem] rounded-full border border-[#ffffff]/20" />
 
         <div className="relative mx-auto flex h-full max-w-[1400px] items-end px-5 pb-10 md:px-10 md:pb-14">
           <div className="max-w-4xl">
@@ -226,7 +226,7 @@ export default function Services() {
                         {/* Branded Corner Accents */}
                         <div
                           className={`absolute h-24 w-24 border-2 md:h-32 md:w-32 ${isEven
-                              ? '-left-4 -top-4 border-[#D2A844] border-b-0 border-r-0'
+                              ? '-left-4 -top-4 border-[#ffffff] border-b-0 border-r-0'
                               : '-right-4 -top-4 border-[#8B1E46] border-b-0 border-l-0'
                             }`}
                         />
@@ -244,7 +244,7 @@ export default function Services() {
                           {/* Floating Category Tag */}
                           <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between">
                             <div>
-                              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D2A844]">
+                              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#ffffff]">
                                 Category {String(i + 1).padStart(2, '0')}
                               </span>
                               <p className="mt-1 font-sans text-2xl font-extrabold text-white">
@@ -259,7 +259,7 @@ export default function Services() {
 
                         {/* Floating Micro Badge */}
                         <div
-                          className={`absolute -bottom-5 flex h-14 w-14 items-center justify-center rounded-full bg-[#D2A844] text-xl font-extrabold text-[#0B2F66] shadow-lg md:h-16 md:w-16 ${isEven ? '-right-4' : '-left-4'
+                          className={`absolute -bottom-5 flex h-14 w-14 items-center justify-center rounded-full bg-[#ffffff] text-xl font-extrabold text-[#0B2F66] shadow-lg md:h-16 md:w-16 ${isEven ? '-right-4' : '-left-4'
                             }`}
                         >
                           ✓
@@ -320,7 +320,7 @@ export default function Services() {
                         href={waLink(`Hello Al Fawaz, I would like to order items from the ${c.name} category.`)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group inline-flex items-center gap-3 rounded-full bg-[#8B1E46] px-6 py-3.5 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-1 hover:bg-[#D2A844] hover:shadow-lg"
+                        className="group inline-flex items-center gap-3 rounded-full bg-[#8B1E46] px-6 py-3.5 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
                       >
                         <WhatsAppIcon />
                         <span>Order {c.name}</span>
@@ -379,7 +379,7 @@ export default function Services() {
                   key={item}
                   className="group flex items-center gap-3 rounded-full border border-[#0B2F66]/10 bg-white px-5 py-3.5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#8B1E46] hover:shadow-md"
                 >
-                  <span className="flex h-2 w-2 rounded-full bg-[#D2A844] transition-colors group-hover:bg-[#8B1E46]" />
+                  <span className="flex h-2 w-2 rounded-full bg-[#ffffff] transition-colors group-hover:bg-[#8B1E46]" />
                   <span className="font-sans text-sm font-extrabold text-[#0B2F66] transition-colors group-hover:text-[#8B1E46] md:text-base">
                     {item}
                   </span>
@@ -453,7 +453,7 @@ export default function Services() {
                     href={waLink('Hello, I would like to set up a regular weekly distribution schedule.')}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-3 rounded-full bg-[#8B1E46] px-7 py-4 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-1 hover:bg-[#D2A844]"
+                    className="group inline-flex items-center gap-3 rounded-full bg-[#8B1E46] px-7 py-4 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-1 hover:bg-[#ffffff]"
                   >
                     Set up regular supply
                     <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
@@ -498,7 +498,7 @@ export default function Services() {
         <div className="relative mx-auto max-w-[1400px] px-5 py-24 md:px-10 md:py-36">
           <div className="max-w-5xl">
             <Reveal>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D2A844]">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#ffffff]">
                 Ready for reliable food & beverage supply?
               </p>
             </Reveal>
@@ -528,7 +528,7 @@ export default function Services() {
                   href={waLink('Hello Al Fawaz, I would like to place an order from your catalog.')}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-3 rounded-full bg-[#8B1E46] px-8 py-4 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-1 hover:bg-[#D2A844] hover:shadow-xl"
+                  className="group inline-flex items-center gap-3 rounded-full bg-[#8B1E46] px-8 py-4 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
                 >
                   Order on WhatsApp
                   <span className="transition-transform duration-300 group-hover:translate-x-1">

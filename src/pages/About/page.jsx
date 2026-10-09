@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { company, waLink } from '../../data/company.js'
@@ -8,10 +8,10 @@ import Reveal from '../../components/Reveal.jsx'
    ICONS & HELPERS
 ========================================================= */
 
-const ArrowIcon = () => (
+const ArrowIcon = ({ size = 20 }) => (
   <svg
-    width="20"
-    height="20"
+    width={size}
+    height={size}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -25,10 +25,10 @@ const ArrowIcon = () => (
   </svg>
 )
 
-const CheckIcon = () => (
+const CheckIcon = ({ size = 18 }) => (
   <svg
-    width="18"
-    height="18"
+    width={size}
+    height={size}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -42,79 +42,39 @@ const CheckIcon = () => (
 )
 
 const PhoneIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
   </svg>
 )
 
 const MailIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <rect width="20" height="16" x="2" y="4" rx="2" />
     <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
   </svg>
 )
 
 const MapPinIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
     <circle cx="12" cy="10" r="3" />
   </svg>
 )
 
-const ShieldIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
+const ShieldIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
   </svg>
 )
 
+/* Used by hero + Who we are only (unchanged) */
 function Eyebrow({ children, light = false }) {
   return (
     <div className="flex items-center gap-3">
-      <span className={`h-px w-10 ${light ? 'bg-[#D2A844]' : 'bg-[#8B1E46]'}`} />
+      <span className={`h-px w-10 ${light ? 'bg-white' : 'bg-[#8B1E46]'}`} />
       <p
-        className={`text-[10px] font-bold uppercase tracking-[0.22em] md:text-xs ${
-          light ? 'text-[#D2A844]' : 'text-[#8B1E46]'
-        }`}
+        className={`text-[10px] font-bold uppercase tracking-[0.22em] md:text-xs ${light ? 'text-white' : 'text-[#8B1E46]'
+          }`}
       >
         {children}
       </p>
@@ -150,6 +110,57 @@ function SafeImage({ srcs, alt, className = '', ...rest }) {
 }
 const FALLBACK = '/assets/common/hero.png'
 
+/* ---------------------------------------------------------
+   ScrollReveal: fades in only when the element scrolls into
+   view (IntersectionObserver), once. `delay` is in ms.
+--------------------------------------------------------- */
+function ScrollReveal({ as: Tag = 'div', delay = 0, y = 28, className = '', children, ...rest }) {
+  const ref = useRef(null)
+  const [shown, setShown] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    if (reduce || typeof IntersectionObserver === 'undefined') {
+      setShown(true)
+      return
+    }
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShown(true)
+          io.disconnect()
+        }
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' }
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  return (
+    <Tag
+      ref={ref}
+      className={className}
+      style={{
+        opacity: shown ? 1 : 0,
+        transform: shown ? 'none' : `translate3d(0, ${y}px, 0)`,
+        transition: `opacity 800ms cubic-bezier(.2,.7,.2,1) ${delay}ms, transform 800ms cubic-bezier(.2,.7,.2,1) ${delay}ms`,
+        willChange: shown ? 'auto' : 'opacity, transform',
+      }}
+      {...rest}
+    >
+      {children}
+    </Tag>
+  )
+}
+
+/* Shared heading style for the redesigned sections */
+const h2Base = 'font-sans text-[clamp(2.4rem,4.8vw,4.8rem)] font-extrabold leading-[0.94] tracking-[-0.045em]'
+const outlineMaroon = 'block text-transparent [-webkit-text-stroke:1.5px_#8B1E46] md:[-webkit-text-stroke:2px_#8B1E46]'
+const outlineWhite = 'block text-transparent [-webkit-text-stroke:1.5px_rgba(255,255,255,0.9)] md:[-webkit-text-stroke:2px_rgba(255,255,255,0.9)]'
+
 /* =========================================================
    ABOUT COMPONENT
 ========================================================= */
@@ -161,13 +172,25 @@ export default function About() {
   }, [])
 
   const detailsList = [
-    { label: 'Registered name', value: company.name, icon: ShieldIcon, link: null },
-    { label: 'Arabic legal name', value: company.arabic, icon: ShieldIcon, link: null, isArabic: true },
-    { label: 'Commercial Registration', value: company.cr, icon: ShieldIcon, link: null },
-    { label: 'Location & Zone', value: company.address, icon: MapPinIcon, link: 'https://www.google.com/maps?q=Doha+Qatar+Zone+27+Street+950' },
-    { label: 'Direct Hotline', value: company.phoneIntl, icon: PhoneIcon, link: `tel:${company.phone}` },
-    { label: 'Official Email', value: company.email, icon: MailIcon, link: `mailto:${company.email}` },
-    { label: 'Website Domain', value: company.website, icon: ArrowIcon, link: company.url },
+    { label: 'Registered name', value: company.name, link: null },
+    { label: 'Arabic legal name', value: company.arabic, link: null, isArabic: true },
+    { label: 'Commercial Registration', value: company.cr, link: null },
+    { label: 'Location', value: company.address, icon: MapPinIcon, link: 'https://www.google.com/maps?q=Doha+Qatar+Zone+27+Street+950' },
+    { label: 'Phone', value: company.phoneIntl, icon: PhoneIcon, link: `tel:${company.phone}` },
+    { label: 'Email', value: company.email, icon: MailIcon, link: `mailto:${company.email}` },
+    { label: 'Website', value: company.website, icon: ArrowIcon, link: company.url },
+  ]
+
+  const focusAreas = [
+    ['Qatar network', 'Nationwide supply reach'],
+    ['Zero delay', 'Responsive scheduling'],
+    ['Quality assured', 'Certified storage & handling'],
+  ]
+
+  const standards = [
+    'Fast order intake via WhatsApp, phone and email',
+    'Direct doorstep delivery to families and commercial accounts',
+    'Reliable stock buffers preventing out-of-stock disappointments',
   ]
 
   return (
@@ -191,7 +214,7 @@ export default function About() {
         <meta property="og:image" content={`${siteUrl}/assets/logo.png`} />
       </Helmet>
 
-       {/* HERO */}
+      {/* HERO (unchanged) */}
       <section className="relative isolate h-[42vh] min-h-[400px] max-h-[520px] overflow-hidden bg-[#071B3C]">
         <div className="absolute inset-0 -z-20">
           <SafeImage srcs={[FALLBACK]} alt="" aria-hidden="true" fetchPriority="high" />
@@ -199,7 +222,7 @@ export default function About() {
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(4,18,40,0.94)_0%,rgba(4,18,40,0.76)_45%,rgba(4,18,40,0.42)_100%)]" />
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(7,27,60,0.1)_0%,rgba(7,27,60,0.72)_100%)]" />
         <div className="pointer-events-none absolute -right-40 -top-40 h-[32rem] w-[32rem] rounded-full border border-white/10" />
-        <div className="pointer-events-none absolute -right-20 -top-20 h-[24rem] w-[24rem] rounded-full border border-[#D2A844]/20" />
+        <div className="pointer-events-none absolute -right-20 -top-20 h-[24rem] w-[24rem] rounded-full border border-[#ffffff]/20" />
 
         <div className="relative mx-auto flex h-full max-w-[1400px] items-end px-5 pb-10 md:px-10 md:pb-14">
           <div className="max-w-4xl">
@@ -215,7 +238,7 @@ export default function About() {
       </section>
 
       {/* =====================================================
-          WHO WE ARE (Editorial Asymmetrical Layout)
+          WHO WE ARE (unchanged)
       ===================================================== */}
       <section className="relative overflow-hidden bg-white py-20 md:py-28">
         <div className="pointer-events-none absolute -right-36 top-1/3 h-96 w-96 rounded-full border border-[#0B2F66]/5" />
@@ -223,7 +246,6 @@ export default function About() {
 
         <div className="relative mx-auto max-w-[1400px] px-5 md:px-10">
           <div className="grid items-center gap-14 lg:grid-cols-12 lg:gap-20">
-            {/* Left Narrative */}
             <div className="lg:col-span-7">
               <Reveal>
                 <Eyebrow>Who we are</Eyebrow>
@@ -251,7 +273,6 @@ export default function About() {
                 </p>
               </Reveal>
 
-              {/* Sectors Served Pills */}
               <Reveal delay={300} className="mt-9">
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#0B2F66]/50">
                   Customer Sectors We Support:
@@ -270,15 +291,12 @@ export default function About() {
               </Reveal>
             </div>
 
-            {/* Right Multi-Layer Visual Card */}
             <div className="relative lg:col-span-5">
               <Reveal variant="right" delay={180}>
                 <div className="relative">
-                  {/* Decorative Corner Accents */}
-                  <div className="absolute -left-4 -top-4 h-24 w-24 border-l-2 border-t-2 border-[#D2A844] md:-left-6 md:-top-6 md:h-32 md:w-32" />
+                  <div className="absolute -left-4 -top-4 h-24 w-24 border-l-2 border-t-2 border-[#ffffff] md:-left-6 md:-top-6 md:h-32 md:w-32" />
                   <div className="absolute -bottom-4 -right-4 h-24 w-24 border-b-2 border-r-2 border-[#8B1E46] md:-bottom-6 md:-right-6 md:h-32 md:w-32" />
 
-                  {/* Main Visual Frame */}
                   <div className="group relative overflow-hidden rounded-[2.5rem] bg-[#071B3C] shadow-2xl">
                     <img
                       src="/assets/common/truck.png"
@@ -288,10 +306,9 @@ export default function About() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#071B3C]/80 via-transparent to-transparent" />
 
-                    {/* Editorial Overlay Caption */}
                     <div className="absolute bottom-6 left-6 right-6">
                       <div className="flex items-center gap-3">
-                        <span className="h-2 w-2 rounded-full bg-[#D2A844]" />
+                        <span className="h-2 w-2 rounded-full bg-[#ffffff]" />
                         <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white">
                           Doha · State of Qatar
                         </span>
@@ -302,7 +319,6 @@ export default function About() {
                     </div>
                   </div>
 
-                  {/* Floating Certificate Pill */}
                   <div className="absolute -bottom-6 -left-6 max-w-xs rounded-2xl border border-white/20 bg-white/95 p-4 shadow-xl backdrop-blur-md md:-bottom-8 md:-left-8">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#8B1E46] text-white">
@@ -326,225 +342,142 @@ export default function About() {
       </section>
 
       {/* =====================================================
-          VISION & MISSION (ARCHITECTURAL DUAL-PILLAR SHOWCASE)
-          Redesigned completely away from boring boxes!
+          VISION & MISSION
+          Two full-bleed halves meeting in the middle.
+          No cards: just colour, space and big type.
       ===================================================== */}
-      <section className="relative overflow-hidden bg-[#F2F5F9] py-24 md:py-36">
-        {/* Subtle Decorative Geometry */}
-        <div className="pointer-events-none absolute -right-32 -top-32 h-[32rem] w-[32rem] rounded-full border border-[#0B2F66]/5" />
-        <div className="pointer-events-none absolute -bottom-40 -left-40 h-[36rem] w-[36rem] rounded-full border border-[#D2A844]/15" />
+      <section className="grid lg:grid-cols-2">
+        {/* Vision (navy) */}
+        <div className="relative overflow-hidden bg-[#071B3C] px-5 py-20 text-white md:px-10 md:py-28 lg:pl-[max(2.5rem,calc((100vw-1400px)/2+2.5rem))] lg:pr-16">
+          <div className="pointer-events-none absolute -right-32 -top-32 h-[28rem] w-[28rem] rounded-full border border-white/10" />
+          <div className="pointer-events-none absolute -right-16 -top-16 h-[20rem] w-[20rem] rounded-full border border-[#ffffff]/25" />
 
-        <div className="relative mx-auto max-w-[1400px] px-5 md:px-10">
-          {/* Section Header */}
-          <div className="max-w-3xl">
-            <Reveal>
-              <Eyebrow>Strategic Direction</Eyebrow>
-            </Reveal>
+          <div className="relative flex h-full max-w-xl flex-col">
+            <ScrollReveal>
+              <div className="flex items-center gap-3 text-[#ffffff]">
+                <span className="h-px w-8 bg-[#ffffff]" />
+                <span className="text-sm font-semibold">Our Vision</span>
+              </div>
+            </ScrollReveal>
 
-            <Reveal delay={120}>
-              <h2 className="mt-5 font-sans text-[clamp(2.5rem,5.2vw,5rem)] font-extrabold leading-[0.93] tracking-[-0.045em] text-[#0B2F66]">
-                Where we are headed.
-                <span className="block text-transparent [-webkit-text-stroke:1.5px_#8B1E46] md:[-webkit-text-stroke:2px_#8B1E46]">
-                  How we get there.
-                </span>
-              </h2>
-            </Reveal>
+            <ScrollReveal as="blockquote" delay={100} className="mt-8 font-sans text-[clamp(1.9rem,3.3vw,3.1rem)] font-extrabold leading-[1.08] tracking-[-0.03em]">
+              {company.vision.quote}
+            </ScrollReveal>
 
-            <Reveal delay={200}>
-              <p className="mt-6 text-base leading-7 text-[#23314A]/70 md:text-lg">
-                Our vision sets our long-term ambition across Qatar; our mission defines the exacting
-                standards we execute on every single delivery run.
-              </p>
-            </Reveal>
+            <ScrollReveal delay={200}>
+              <p className="mt-6 text-base leading-8 text-white/70">{company.vision.text}</p>
+            </ScrollReveal>
+
+            <ScrollReveal delay={300} className="mt-auto pt-14">
+              <dl className="border-b border-white/15">
+                {focusAreas.map(([t, s]) => (
+                  <div key={t} className="flex items-baseline justify-between gap-6 border-t border-white/15 py-4">
+                    <dt className="text-sm font-bold text-white">{t}</dt>
+                    <dd className="text-sm text-white/55">{s}</dd>
+                  </div>
+                ))}
+              </dl>
+            </ScrollReveal>
           </div>
+        </div>
 
-          {/* Dual Architectural Pillars (Sculptural Contrast) */}
-          <div className="mt-16 grid gap-8 lg:grid-cols-12 lg:gap-10">
-            {/* PILLAR 1: VISION (Deep Night Navy Luxury Pillar) */}
-            <Reveal delay={220} className="lg:col-span-6">
-              <div className="relative flex h-full flex-col justify-between overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#071B3C] via-[#0B2F66] to-[#0A224E] p-8 text-white shadow-2xl md:p-12">
-                {/* Decorative Concentric Rings Watermark */}
-                <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full border border-white/10" />
-                <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full border border-[#D2A844]/25" />
+        {/* Mission (light) */}
+        <div className="relative overflow-hidden bg-[#F2F5F9] px-5 py-20 md:px-10 md:py-28 lg:pl-16 lg:pr-[max(2.5rem,calc((100vw-1400px)/2+2.5rem))]">
+          <div className="pointer-events-none absolute -bottom-40 -right-40 h-[32rem] w-[32rem] rounded-full border border-[#8B1E46]/10" />
 
-                <div>
-                  {/* Badge & Label */}
-                  <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center gap-2 rounded-full border border-[#D2A844]/40 bg-[#D2A844]/15 px-4 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#D2A844]">
-                      <span className="h-2 w-2 rounded-full bg-[#D2A844]" />
-                      Our Vision
-                    </span>
-                    <span className="font-sans text-5xl font-black text-white/10 md:text-6xl">
-                      “
-                    </span>
-                  </div>
-
-                  {/* Vision Quote */}
-                  <blockquote className="mt-8 font-sans text-[clamp(1.6rem,2.8vw,2.4rem)] font-extrabold leading-[1.15] tracking-tight text-white">
-                    {company.vision.quote}
-                  </blockquote>
-
-                  {/* Vision Text */}
-                  <p className="mt-6 text-sm leading-7 text-white/75 md:text-base md:leading-8">
-                    {company.vision.text}
-                  </p>
-                </div>
-
-                {/* Purpose Milestones */}
-                <div className="mt-10 border-t border-white/15 pt-8">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D2A844]">
-                    Strategic Focus Areas:
-                  </p>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm">
-                      <p className="text-xs font-bold text-white">Qatar Network</p>
-                      <p className="mt-1 text-[11px] text-white/60">Nationwide supply reach</p>
-                    </div>
-                    <div className="rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm">
-                      <p className="text-xs font-bold text-[#D2A844]">Zero Delay</p>
-                      <p className="mt-1 text-[11px] text-white/60">Responsive scheduling</p>
-                    </div>
-                    <div className="rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm">
-                      <p className="text-xs font-bold text-white">Quality Assured</p>
-                      <p className="mt-1 text-[11px] text-white/60">Certified storage & handling</p>
-                    </div>
-                  </div>
-                </div>
+          <div className="relative flex h-full max-w-xl flex-col">
+            <ScrollReveal delay={80}>
+              <div className="flex items-center gap-3 text-[#8B1E46]">
+                <span className="h-px w-8 bg-[#8B1E46]" />
+                <span className="text-sm font-semibold">Our Mission</span>
               </div>
-            </Reveal>
+            </ScrollReveal>
 
-            {/* PILLAR 2: MISSION (Crisp Editorial Elevated Card) */}
-            <Reveal delay={320} className="lg:col-span-6">
-              <div className="relative flex h-full flex-col justify-between overflow-hidden rounded-[2.5rem] border-2 border-[#0B2F66]/10 bg-white p-8 text-[#0B2F66] shadow-xl md:p-12">
-                {/* Decorative Accent Frame */}
-                <div className="absolute right-0 top-0 h-32 w-32 bg-gradient-to-bl from-[#8B1E46]/10 via-transparent to-transparent" />
-                <div className="absolute right-8 top-8 h-12 w-12 border-r-2 border-t-2 border-[#8B1E46]/40" />
+            <ScrollReveal as="blockquote" delay={180} className="mt-8 font-sans text-[clamp(1.9rem,3.3vw,3.1rem)] font-extrabold leading-[1.08] tracking-[-0.03em] text-[#0B2F66]">
+              {company.mission.quote}
+            </ScrollReveal>
 
-                <div>
-                  {/* Badge & Label */}
-                  <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center gap-2 rounded-full border border-[#8B1E46]/20 bg-[#8B1E46]/10 px-4 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#8B1E46]">
-                      <span className="h-2 w-2 rounded-full bg-[#8B1E46]" />
-                      Our Mission
-                    </span>
-                    <span className="font-sans text-5xl font-black text-[#0B2F66]/10 md:text-6xl">
-                      “
-                    </span>
-                  </div>
+            <ScrollReveal delay={280}>
+              <p className="mt-6 text-base leading-8 text-[#23314A]/70">{company.mission.text}</p>
+            </ScrollReveal>
 
-                  {/* Mission Quote */}
-                  <blockquote className="mt-8 font-sans text-[clamp(1.6rem,2.8vw,2.4rem)] font-extrabold leading-[1.15] tracking-tight text-[#0B2F66]">
-                    {company.mission.quote}
-                  </blockquote>
-
-                  {/* Mission Text */}
-                  <p className="mt-6 text-sm leading-7 text-[#23314A]/70 md:text-base md:leading-8">
-                    {company.mission.text}
-                  </p>
-                </div>
-
-                {/* Actionable Commitments */}
-                <div className="mt-10 border-t border-[#0B2F66]/10 pt-8">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#8B1E46]">
-                    Daily Operational Standards:
-                  </p>
-                  <ul className="mt-4 space-y-3">
-                    <li className="flex items-center gap-3 text-sm font-semibold text-[#0B2F66]">
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1F7A4D] text-white">
-                        <CheckIcon />
-                      </span>
-                      Fast order intake via WhatsApp, phone and email
-                    </li>
-                    <li className="flex items-center gap-3 text-sm font-semibold text-[#0B2F66]">
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1F7A4D] text-white">
-                        <CheckIcon />
-                      </span>
-                      Direct doorstep delivery to families and commercial accounts
-                    </li>
-                    <li className="flex items-center gap-3 text-sm font-semibold text-[#0B2F66]">
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1F7A4D] text-white">
-                        <CheckIcon />
-                      </span>
-                      Reliable stock buffers preventing out-of-stock disappointments
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </Reveal>
+            <ScrollReveal delay={380} className="mt-auto pt-14">
+              <ul className="border-b border-[#0B2F66]/12">
+                {standards.map((s) => (
+                  <li key={s} className="flex items-start gap-3 border-t border-[#0B2F66]/12 py-4 text-sm font-semibold leading-6 text-[#0B2F66]">
+                    <span className="mt-0.5 text-[#1F7A4D]"><CheckIcon size={18} /></span>
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            </ScrollReveal>
           </div>
         </div>
       </section>
 
       {/* =====================================================
-          PHILOSOPHY (Right Product · Right Place · Right Time)
+          PHILOSOPHY: arched image + oversized type
       ===================================================== */}
       <section className="relative overflow-hidden bg-[#0B2F66] py-24 md:py-36">
         <div className="pointer-events-none absolute -right-40 -top-40 h-[36rem] w-[36rem] rounded-full border border-white/10" />
-        <div className="pointer-events-none absolute -left-20 -bottom-20 h-[30rem] w-[30rem] rounded-full border border-[#D2A844]/20" />
+        <div className="pointer-events-none absolute -bottom-20 -left-20 h-[30rem] w-[30rem] rounded-full border border-[#ffffff]/20" />
 
         <div className="relative mx-auto max-w-[1400px] px-5 md:px-10">
           <div className="grid items-center gap-14 lg:grid-cols-12 lg:gap-20">
-            {/* Visual Frame */}
-            <div className="relative lg:col-span-5">
-              <Reveal variant="left">
-                <div className="relative">
-                  <div className="absolute -bottom-5 -left-5 h-24 w-24 border-b-2 border-l-2 border-[#D2A844] md:-bottom-7 md:-left-7 md:h-32 md:w-32" />
-                  <div className="group relative aspect-[4/5] overflow-hidden rounded-[2.5rem] shadow-2xl">
+            <div className="lg:col-span-5">
+              <ScrollReveal y={40}>
+                <div className="relative mx-auto max-w-md lg:max-w-none">
+                  {/* offset outline arch behind the photo */}
+                  <div className="absolute inset-0 translate-x-4 translate-y-4 rounded-t-[999px] rounded-b-[1.5rem] border border-[#ffffff]/60 md:translate-x-6 md:translate-y-6" />
+                  <div className="group relative aspect-[4/5] overflow-hidden rounded-t-[999px] rounded-b-[1.5rem] bg-[#071B3C]">
                     <img
                       src="/assets/common/doorStep.png"
                       alt="Al Fawaz food distribution delivery and handling"
-                      className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-105"
+                      className="h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105"
                       loading="lazy"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#071B3C]/70 via-transparent to-transparent" />
-                    <div className="absolute bottom-6 left-6 right-6">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D2A844]">
-                        Core Commitment
-                      </p>
-                      <p className="mt-1 text-lg font-bold text-white">
-                        Distribution without delay
-                      </p>
-                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#071B3C]/75 via-transparent to-transparent" />
+                    <p className="absolute inset-x-0 bottom-7 px-6 text-center text-lg font-bold text-white">
+                      Distribution without delay
+                    </p>
                   </div>
                 </div>
-              </Reveal>
+              </ScrollReveal>
             </div>
 
-            {/* Typography & Philosophy Lines */}
             <div className="lg:col-span-7">
-              <Reveal>
-                <Eyebrow light>Our Operating Philosophy</Eyebrow>
-              </Reveal>
+              <ScrollReveal>
+                <p className="text-base font-semibold text-[#ffffff]">How we operate</p>
+              </ScrollReveal>
 
-              <div className="mt-8 space-y-1">
+              <div className="mt-6 space-y-1">
                 {company.philosophy.line.map((line, index) => (
-                  <Reveal key={line} delay={index * 120}>
+                  <ScrollReveal key={line} delay={index * 130} y={36}>
                     <span
-                      className={`block font-sans text-[clamp(2.8rem,6.5vw,6.5rem)] font-extrabold leading-[0.9] tracking-[-0.055em] ${
-                        index === 0
+                      className={`block font-sans text-[clamp(2.8rem,6.5vw,6.5rem)] font-extrabold leading-[0.9] tracking-[-0.055em] ${index === 0
                           ? 'text-white'
                           : index === 1
-                          ? 'text-transparent [-webkit-text-stroke:1.5px_rgba(255,255,255,0.9)] md:[-webkit-text-stroke:2px_rgba(255,255,255,0.9)]'
-                          : 'text-[#D2A844]'
-                      }`}
+                            ? 'text-transparent [-webkit-text-stroke:1.5px_rgba(255,255,255,0.9)] md:[-webkit-text-stroke:2px_rgba(255,255,255,0.9)]'
+                            : 'text-[#ffffff]'
+                        }`}
                     >
                       {line}
                     </span>
-                  </Reveal>
+                  </ScrollReveal>
                 ))}
               </div>
 
-              <Reveal delay={380}>
+              <ScrollReveal delay={400}>
                 <p className="mt-8 max-w-xl text-base leading-7 text-white/75 md:text-lg md:leading-8">
                   {company.philosophy.text}
                 </p>
-              </Reveal>
+              </ScrollReveal>
 
-              <Reveal delay={480} className="mt-10">
+              <ScrollReveal delay={500} className="mt-10">
                 <div className="flex flex-wrap items-center gap-4">
                   <Link
                     to="/contact"
-                    className="group inline-flex items-center gap-3 rounded-full bg-[#8B1E46] px-7 py-4 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-1 hover:bg-[#D2A844] hover:shadow-lg"
+                    className="group inline-flex items-center gap-3 rounded-full bg-[#ffffff] px-7 py-4 text-sm font-extrabold text-[#071B3C] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white"
                   >
                     Start a supply partnership
                     <span className="transition-transform duration-300 group-hover:translate-x-1">
@@ -555,256 +488,190 @@ export default function About() {
                     href={waLink('Hello Al Fawaz, I would like to learn about your distribution routes.')}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/5 px-6 py-4 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-white/10"
+                    className="inline-flex items-center gap-3 rounded-full border border-white/25 px-6 py-4 text-sm font-semibold text-white transition-all duration-300 hover:border-white hover:bg-white/10"
                   >
                     Ask on WhatsApp
                   </a>
                 </div>
-              </Reveal>
+              </ScrollReveal>
             </div>
           </div>
         </div>
       </section>
 
       {/* =====================================================
-          HOW AN ORDER MOVES (DYNAMIC CONNECTED PROCESS FLOW)
-          Replaces the generic 4-box grid with a connected stream!
-      ===================================================== */}
-      <section className="relative overflow-hidden bg-white py-24 md:py-36">
-        <div className="mx-auto max-w-[1400px] px-5 md:px-10">
-          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-            <div>
-              <Reveal>
-                <Eyebrow>The Order Journey</Eyebrow>
-              </Reveal>
-
-              <Reveal delay={120}>
-                <h2 className="mt-5 max-w-2xl font-sans text-[clamp(2.4rem,4.8vw,4.8rem)] font-extrabold leading-[0.93] tracking-[-0.045em] text-[#0B2F66]">
-                  From your requirement
-                  <span className="block text-transparent [-webkit-text-stroke:1.5px_#8B1E46] md:[-webkit-text-stroke:2px_#8B1E46]">
-                    to your doorstep.
-                  </span>
-                </h2>
-              </Reveal>
-            </div>
-
-            <Reveal delay={200}>
-              <p className="max-w-md text-sm leading-relaxed text-[#23314A]/70 md:text-base">
-                Four simple, coordinated steps designed to eliminate turnaround delays
-                and give you real-time confidence in every delivery.
-              </p>
-            </Reveal>
-          </div>
-
-          {/* Connected Stream Cards */}
-          <div className="relative mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {company.steps.map(([title, text], i) => (
-              <Reveal key={title} delay={i * 90}>
-                <div className="group relative flex h-full flex-col justify-between rounded-[2rem] border border-[#0B2F66]/10 bg-[#F2F5F9] p-8 transition-all duration-500 hover:-translate-y-2 hover:border-[#8B1E46]/40 hover:bg-white hover:shadow-xl md:p-9">
-                  {/* Step Top Bar */}
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <span className="font-sans text-5xl font-black text-transparent [-webkit-text-stroke:1.5px_#D2A844] transition-all duration-300 group-hover:scale-110">
-                        {String(i + 1).padStart(2, '0')}
-                      </span>
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full border border-[#0B2F66]/10 bg-white text-xs font-extrabold text-[#8B1E46] transition-colors duration-300 group-hover:bg-[#8B1E46] group-hover:text-white">
-                        {i === 3 ? '✓' : '→'}
-                      </span>
-                    </div>
-
-                    <h3 className="mt-8 font-sans text-xl font-extrabold tracking-[-0.02em] text-[#0B2F66] transition-colors duration-300 group-hover:text-[#8B1E46]">
-                      {title}
-                    </h3>
-                    <p className="mt-3 text-sm leading-7 text-[#23314A]/65">
-                      {text}
-                    </p>
-                  </div>
-
-                  {/* Micro Accent */}
-                  <div className="mt-8 pt-4">
-                    <span className="block h-1 w-10 rounded-full bg-[#0B2F66]/15 transition-all duration-300 group-hover:w-16 group-hover:bg-[#8B1E46]" />
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* =====================================================
-          OFFICIAL CREDENTIALS & REGISTRY
-          Replaces the boring template table!
+          ORDER JOURNEY: a real timeline (this IS a sequence)
       ===================================================== */}
       <section className="relative overflow-hidden bg-[#F2F5F9] py-24 md:py-36">
         <div className="mx-auto max-w-[1400px] px-5 md:px-10">
-          <div className="grid gap-14 lg:grid-cols-12 lg:gap-20">
-            {/* Left Official Identity Feature */}
-            <div className="lg:col-span-5">
-              <Reveal>
-                <Eyebrow>Corporate Identity</Eyebrow>
-              </Reveal>
+          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+            <ScrollReveal as="h2" className={`${h2Base} max-w-2xl text-[#0B2F66]`}>
+              From your requirement
+              <span className={outlineMaroon}>to your doorstep.</span>
+            </ScrollReveal>
 
-              <Reveal delay={120}>
-                <h2 className="mt-6 font-sans text-[clamp(2.4rem,4.5vw,4.5rem)] font-extrabold leading-[0.94] tracking-[-0.045em] text-[#0B2F66]">
-                  Official credentials
-                  <span className="block text-transparent [-webkit-text-stroke:1.5px_#8B1E46] md:[-webkit-text-stroke:2px_#8B1E46]">
-                    and registry.
+            <ScrollReveal delay={120}>
+              <p className="max-w-md text-base leading-7 text-[#23314A]/70">
+                Four coordinated steps designed to remove turnaround delays and keep you informed
+                on every delivery.
+              </p>
+            </ScrollReveal>
+          </div>
+
+          <div className="relative mt-20 grid gap-12 lg:grid-cols-4 lg:gap-8">
+            {/* connecting line: vertical on mobile, horizontal on desktop */}
+            <div className="pointer-events-none absolute bottom-6 left-6 top-6 w-px bg-[#0B2F66]/20 lg:hidden" />
+            <div className="pointer-events-none absolute left-6 right-6 top-6 hidden h-px bg-gradient-to-r from-[#ffffff] via-[#0B2F66]/25 to-[#8B1E46] lg:block" />
+
+            {company.steps.map(([title, text], i) => {
+              const last = i === company.steps.length - 1
+              return (
+                <ScrollReveal key={title} delay={i * 120} className="relative pl-20 lg:pl-0 lg:pt-20">
+                  <span
+                    className={`absolute left-0 top-0 flex h-12 w-12 items-center justify-center rounded-full font-sans text-base font-extrabold ring-8 ring-[#F2F5F9] ${last ? 'bg-[#8B1E46] text-white' : 'bg-[#0B2F66] text-[#ffffff]'
+                      }`}
+                  >
+                    {last ? <CheckIcon size={20} /> : i + 1}
                   </span>
-                </h2>
-              </Reveal>
+                  <h3 className="font-sans text-xl font-extrabold tracking-[-0.02em] text-[#0B2F66]">
+                    {title}
+                  </h3>
+                  <p className="mt-3 max-w-xs text-sm leading-7 text-[#23314A]/70">{text}</p>
+                </ScrollReveal>
+              )
+            })}
+          </div>
+        </div>
+      </section>
 
-              <Reveal delay={200}>
-                <p className="mt-6 text-sm leading-7 text-[#23314A]/70 md:text-base md:leading-8">
-                  Al Fawaz International for Food Trading is a fully licensed and registered trading entity
-                  in the State of Qatar. We maintain complete transparency and regulatory compliance across
-                  our supply chain and customer partnerships.
-                </p>
-              </Reveal>
+      {/* =====================================================
+          CREDENTIALS: a registry sheet, not a grid of cards
+      ===================================================== */}
+      <section className="relative overflow-hidden bg-white py-24 md:py-36">
+        <div className="mx-auto max-w-[1400px] px-5 md:px-10">
+          <div className="grid gap-14 lg:grid-cols-12 lg:gap-20">
+            <div className="lg:col-span-5">
+              <div className="lg:sticky lg:top-32">
+                <ScrollReveal as="h2" className={`${h2Base} text-[#0B2F66]`}>
+                  Licensed and
+                  <span className={outlineMaroon}>fully registered.</span>
+                </ScrollReveal>
 
-              {/* Official Seal Card */}
-              <Reveal delay={300} className="mt-9">
-                <div className="rounded-[2rem] border border-[#0B2F66]/15 bg-white p-7 shadow-md">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#0B2F66] text-[#D2A844]">
-                      <ShieldIcon />
-                    </div>
+                <ScrollReveal delay={100}>
+                  <p className="mt-6 max-w-md text-base leading-7 text-[#23314A]/70">
+                    Al Fawaz International for Food Trading is a licensed trading entity in the State
+                    of Qatar, with full regulatory compliance across our supply chain and customer
+                    partnerships.
+                  </p>
+                </ScrollReveal>
+
+                {/* Registration number as a typographic seal */}
+                <ScrollReveal delay={200}>
+                  <div className="mt-10 flex items-center gap-5">
+                    <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#0B2F66] text-[#ffffff]">
+                      <ShieldIcon size={26} />
+                    </span>
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#8B1E46]">
-                        Verified Commercial Registration
-                      </p>
-                      <p className="mt-1 font-sans text-2xl font-extrabold text-[#0B2F66]">
-                        CR: {company.cr}
+                      <p className="text-sm text-[#23314A]/55">Commercial Registration</p>
+                      <p className="font-sans text-3xl font-extrabold tracking-tight text-[#0B2F66] md:text-4xl">
+                        {company.cr}
                       </p>
                     </div>
                   </div>
-                  <p className="mt-4 border-t border-[#0B2F66]/10 pt-4 font-arabic text-lg font-bold text-[#0B2F66]" lang="ar" dir="rtl">
-                    {company.arabic}
-                  </p>
-                </div>
-              </Reveal>
+                </ScrollReveal>
+              </div>
             </div>
 
-            {/* Right Interactive Credential Spec Cards */}
             <div className="lg:col-span-7">
-              <div className="grid gap-3 sm:grid-cols-2">
+              <dl className="border-b border-[#0B2F66]/12">
                 {detailsList.map((item, idx) => {
                   const Icon = item.icon
-                  const cardContent = (
-                    <div className="group flex h-full flex-col justify-between rounded-2xl border border-[#0B2F66]/10 bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#8B1E46] hover:shadow-lg">
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#23314A]/50">
-                            {item.label}
-                          </span>
-                          <span className="text-[#8B1E46] opacity-60 transition-opacity group-hover:opacity-100">
-                            <Icon />
-                          </span>
-                        </div>
-                        <p
-                          className={`mt-4 break-words text-base font-bold text-[#0B2F66] transition-colors group-hover:text-[#8B1E46] ${
-                            item.isArabic ? 'font-arabic text-xl' : ''
+                  const body = (
+                    <>
+                      <dt className="text-sm text-[#23314A]/55">{item.label}</dt>
+                      <dd
+                        className={`break-words font-bold text-[#0B2F66] transition-colors group-hover:text-[#8B1E46] ${item.isArabic ? 'font-arabic text-2xl' : 'text-lg md:text-xl'
                           }`}
-                          {...(item.isArabic ? { lang: 'ar', dir: 'rtl' } : {})}
-                        >
-                          {item.value}
-                        </p>
-                      </div>
-                      {item.link && (
-                        <p className="mt-4 text-[11px] font-bold uppercase tracking-wider text-[#8B1E46]">
-                          Click to open →
-                        </p>
-                      )}
-                    </div>
+                        {...(item.isArabic ? { lang: 'ar', dir: 'rtl' } : {})}
+                      >
+                        {item.value}
+                      </dd>
+                      <span className="hidden text-[#0B2F66]/25 transition-all duration-300 group-hover:translate-x-1 group-hover:text-[#8B1E46] sm:block">
+                        {item.link && Icon ? <Icon /> : null}
+                      </span>
+                    </>
                   )
-
+                  const rowClass =
+                    'group grid items-baseline gap-1 border-t border-[#0B2F66]/12 py-6 sm:grid-cols-[190px_1fr_24px] sm:gap-6'
                   return (
-                    <Reveal key={item.label} delay={idx * 60}>
+                    <ScrollReveal key={item.label} delay={idx * 60} y={18}>
                       {item.link ? (
                         <a
                           href={item.link}
                           target={item.link.startsWith('http') ? '_blank' : undefined}
                           rel={item.link.startsWith('http') ? 'noopener noreferrer' : undefined}
-                          className="block h-full"
+                          className={`${rowClass} transition-colors hover:bg-[#F2F5F9]/70`}
                         >
-                          {cardContent}
+                          {body}
                         </a>
                       ) : (
-                        cardContent
+                        <div className={rowClass}>{body}</div>
                       )}
-                    </Reveal>
+                    </ScrollReveal>
                   )
                 })}
-              </div>
+              </dl>
             </div>
           </div>
         </div>
       </section>
 
       {/* =====================================================
-          CORE VALUES (ASYMMETRICAL INTERACTIVE VALUES)
+          VALUES: ruled list with big type, no tiles
       ===================================================== */}
-      <section className="relative overflow-hidden bg-white py-24 md:py-36">
+      <section className="relative overflow-hidden bg-[#F2F5F9] py-24 md:py-36">
         <div className="mx-auto max-w-[1400px] px-5 md:px-10">
           <div className="grid gap-12 lg:grid-cols-12 lg:gap-20">
-            {/* Sticky Editorial Sidebar */}
             <div className="lg:col-span-5">
               <div className="lg:sticky lg:top-32">
-                <Reveal>
-                  <Eyebrow>What we stand for</Eyebrow>
-                </Reveal>
+                <ScrollReveal as="h2" className={`${h2Base} text-[#0B2F66]`}>
+                  Values that
+                  <span className={outlineMaroon}>guide every run.</span>
+                </ScrollReveal>
 
-                <Reveal delay={120}>
-                  <h2 className="mt-6 font-sans text-[clamp(2.6rem,5vw,5rem)] font-extrabold leading-[0.93] tracking-[-0.05em] text-[#0B2F66]">
-                    Values that
-                    <span className="block text-transparent [-webkit-text-stroke:1.5px_#8B1E46] md:[-webkit-text-stroke:2px_#8B1E46]">
-                      guide every run.
-                    </span>
-                  </h2>
-                </Reveal>
-
-                <Reveal delay={200}>
+                <ScrollReveal delay={100}>
                   <p className="mt-6 max-w-md text-base leading-7 text-[#23314A]/70">
-                    Our principles define how we treat clients, manage stock, coordinate drivers,
-                    and fulfill commitments without compromise.
+                    How we treat clients, manage stock, coordinate drivers and keep our promises.
                   </p>
-                </Reveal>
+                </ScrollReveal>
 
-                <Reveal delay={280} className="mt-8">
+                <ScrollReveal delay={180} className="mt-8">
                   <Link
                     to="/contact"
                     className="group inline-flex items-center gap-3 text-sm font-bold text-[#8B1E46] transition-colors duration-300 hover:text-[#0B2F66]"
                   >
                     Discuss your supply requirements
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#8B1E46]/20 transition-all duration-300 group-hover:translate-x-1 group-hover:bg-[#8B1E46] group-hover:text-white">
-                      <ArrowIcon />
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#8B1E46]/25 transition-all duration-300 group-hover:translate-x-1 group-hover:bg-[#8B1E46] group-hover:text-white">
+                      <ArrowIcon size={18} />
                     </span>
                   </Link>
-                </Reveal>
+                </ScrollReveal>
               </div>
             </div>
 
-            {/* Asymmetrical Values Showcase */}
             <div className="lg:col-span-7">
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="border-b border-[#0B2F66]/12">
                 {company.values.map(([title, description], index) => (
-                  <Reveal key={title} delay={index * 60}>
-                    <div className="group flex h-full flex-col justify-between rounded-2xl border border-[#0B2F66]/10 bg-[#F2F5F9] p-7 transition-all duration-300 hover:-translate-y-1 hover:border-[#8B1E46] hover:bg-white hover:shadow-lg">
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-extrabold text-[#D2A844]">
-                            #{String(index + 1).padStart(2, '0')}
-                          </span>
-                          <span className="h-2 w-2 rounded-full bg-[#0B2F66]/20 transition-colors group-hover:bg-[#8B1E46]" />
-                        </div>
-                        <h3 className="mt-4 font-sans text-xl font-extrabold tracking-[-0.02em] text-[#0B2F66] transition-colors duration-300 group-hover:text-[#8B1E46]">
-                          {title}
-                        </h3>
-                        <p className="mt-3 text-sm leading-6 text-[#23314A]/70">
-                          {description}
-                        </p>
-                      </div>
+                  <ScrollReveal key={title} delay={index * 70} y={20}>
+                    <div className="group relative grid gap-3 border-t border-[#0B2F66]/12 py-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] md:gap-10 md:py-10">
+                      {/* gold marker that grows on hover */}
+                      <span className="absolute -top-px left-0 h-[2px] w-0 bg-[#8B1E46] transition-all duration-500 group-hover:w-full" />
+                      <h3 className="font-sans text-2xl font-extrabold tracking-[-0.025em] text-[#0B2F66] transition-colors duration-300 group-hover:text-[#8B1E46] md:text-3xl">
+                        {title}
+                      </h3>
+                      <p className="text-base leading-7 text-[#23314A]/70">{description}</p>
                     </div>
-                  </Reveal>
+                  </ScrollReveal>
                 ))}
               </div>
             </div>
@@ -813,85 +680,67 @@ export default function About() {
       </section>
 
       {/* =====================================================
-          COMMITMENTS (COUNT ON US)
+          COMMITMENTS: open columns with a short rule
       ===================================================== */}
-      <section className="bg-[#F2F5F9] py-24 md:py-36">
+      <section className="bg-white py-24 md:py-36">
         <div className="mx-auto max-w-[1400px] px-5 md:px-10">
-          <Reveal>
-            <Eyebrow>Customer Commitments</Eyebrow>
-          </Reveal>
+          <ScrollReveal as="h2" className={`${h2Base} max-w-3xl text-[#0B2F66]`}>
+            What you can
+            <span className={outlineMaroon}>count on.</span>
+          </ScrollReveal>
 
-          <Reveal delay={120}>
-            <h2 className="mt-5 max-w-3xl font-sans text-[clamp(2.5rem,4.6vw,4.6rem)] font-extrabold leading-[0.94] tracking-[-0.05em] text-[#0B2F66]">
-              What you can count on.
-            </h2>
-          </Reveal>
-
-          <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-16 grid gap-x-14 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
             {company.commitments.map(([title, text], i) => (
-              <Reveal key={title} delay={(i % 3) * 80}>
-                <div className="group h-full rounded-[1.75rem] border border-[#0B2F66]/10 bg-white p-8 transition-all duration-300 hover:-translate-y-1.5 hover:border-[#8B1E46]/40 hover:shadow-xl">
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0B2F66]/5 text-[#8B1E46] transition-colors group-hover:bg-[#8B1E46] group-hover:text-white">
-                      <CheckIcon />
-                    </span>
-                    <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#23314A]/40">
-                      Standard {i + 1}
-                    </span>
-                  </div>
-
-                  <h3 className="mt-6 font-sans text-xl font-extrabold tracking-[-0.02em] text-[#0B2F66] transition-colors group-hover:text-[#8B1E46]">
-                    {title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-7 text-[#23314A]/70">
-                    {text}
-                  </p>
+              <ScrollReveal key={title} delay={(i % 3) * 100} className="group">
+                <div className="relative h-px bg-[#0B2F66]/15">
+                  <span className="absolute left-0 top-0 h-[3px] w-12 -translate-y-px bg-[#ffffff] transition-all duration-500 group-hover:w-24 group-hover:bg-[#8B1E46]" />
                 </div>
-              </Reveal>
+                <div className="mt-7 flex items-start gap-3">
+                  <span className="mt-1 text-[#8B1E46]"><CheckIcon size={20} /></span>
+                  <div>
+                    <h3 className="font-sans text-xl font-extrabold tracking-[-0.02em] text-[#0B2F66]">
+                      {title}
+                    </h3>
+                    <p className="mt-3 text-sm leading-7 text-[#23314A]/70">{text}</p>
+                  </div>
+                </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
       </section>
 
       {/* =====================================================
-          FINAL CTA (Matching Home Page Standard)
+          FINAL CTA
       ===================================================== */}
       <section className="relative overflow-hidden bg-[#071B3C]">
         <div className="pointer-events-none absolute -right-40 -top-40 h-[30rem] w-[30rem] rounded-full border border-white/10" />
+        <div className="pointer-events-none absolute -right-16 -top-16 h-[20rem] w-[20rem] rounded-full border border-[#ffffff]/20" />
         <div className="pointer-events-none absolute -bottom-40 -left-40 h-[30rem] w-[30rem] rounded-full border border-[#8B1E46]/40" />
 
         <div className="relative mx-auto max-w-[1400px] px-5 py-24 md:px-10 md:py-36">
           <div className="max-w-5xl">
-            <Reveal>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D2A844]">
-                {company.delivery.quote}
-              </p>
-            </Reveal>
+            <ScrollReveal>
+              <p className="text-base font-semibold text-[#ffffff]">{company.delivery.quote}</p>
+            </ScrollReveal>
 
-            <Reveal delay={120}>
-              <h2 className="mt-6 font-sans text-[clamp(2.8rem,6vw,6rem)] font-extrabold leading-[0.9] tracking-[-0.055em] text-white">
-                Ready to build a
-              </h2>
-            </Reveal>
+            <ScrollReveal as="h2" delay={100} className="mt-6 font-sans text-[clamp(2.8rem,6vw,6rem)] font-extrabold leading-[0.9] tracking-[-0.055em] text-white">
+              Ready to build a
+              <span className={outlineWhite}>better distribution network?</span>
+            </ScrollReveal>
 
-            <Reveal delay={240}>
-              <h2 className="mt-1 font-sans text-[clamp(2.8rem,6vw,6rem)] font-extrabold leading-[0.9] tracking-[-0.055em] text-transparent [-webkit-text-stroke:1.5px_rgba(255,255,255,0.9)] md:[-webkit-text-stroke:2px_rgba(255,255,255,0.9)]">
-                better distribution network?
-              </h2>
-            </Reveal>
-
-            <Reveal delay={360}>
+            <ScrollReveal delay={220}>
               <p className="mt-8 max-w-2xl text-base leading-7 text-white/75 md:text-lg">
                 Connect with our team to arrange regular deliveries for your home, grocery store,
                 supermarket or foodservice establishment across Qatar.
               </p>
-            </Reveal>
+            </ScrollReveal>
 
-            <Reveal delay={480}>
+            <ScrollReveal delay={320}>
               <div className="mt-10 flex flex-wrap items-center gap-4">
                 <Link
                   to="/contact"
-                  className="group inline-flex items-center gap-3 rounded-full bg-[#8B1E46] px-8 py-4 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-1 hover:bg-[#D2A844] hover:shadow-xl"
+                  className="group inline-flex items-center gap-3 rounded-full bg-[#ffffff] px-8 py-4 text-sm font-extrabold text-[#071B3C] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-xl"
                 >
                   Contact our dispatch team
                   <span className="transition-transform duration-300 group-hover:translate-x-1">
@@ -903,12 +752,12 @@ export default function About() {
                   href={waLink()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/5 px-8 py-4 text-sm font-bold text-white backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-white/10"
+                  className="inline-flex items-center gap-3 rounded-full border border-white/25 px-8 py-4 text-sm font-bold text-white transition-all duration-300 hover:border-white hover:bg-white/10"
                 >
                   Order on WhatsApp
                 </a>
               </div>
-            </Reveal>
+            </ScrollReveal>
           </div>
         </div>
       </section>
