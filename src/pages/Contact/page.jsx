@@ -251,9 +251,9 @@ ${formData.message || 'Please contact me regarding your product catalog.'}`
           <div className="max-w-4xl">
             <Reveal><Eyebrow light>Direct Distribution Support · Doha, Qatar</Eyebrow></Reveal>
             <Reveal as="h1" delay={0.1} className="mt-5 font-sans text-[clamp(2.6rem,6vw,5.8rem)] font-extrabold leading-[0.9] tracking-[-0.055em] text-white">
-              Tell us what you need.
+              Need something?
               <span className="block text-transparent" style={{ WebkitTextStroke: '1.5px rgba(255,255,255,0.9)' }}>
-                We'll get it moving.
+                Let's move.
               </span>
             </Reveal>
           </div>
